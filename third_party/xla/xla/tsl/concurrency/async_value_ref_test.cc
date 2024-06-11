@@ -42,16 +42,42 @@ class WrappedInt32 {
 
 constexpr int32_t kTestValue = 42;
 
-TEST(AsyncValueRefTest, ImplicitStatusConversion) {
-  struct Empty : public AsyncValueTraits::AllowImplicitStatusConstruction {};
+TEST(AsyncValueRefTest, ImplicitValueConversion) {
+  auto payload = []() -> AsyncValueRef<WrappedInt32> {
+    return WrappedInt32{42};
+  }();
 
-  auto error = []() -> AsyncValueRef<Empty> {
-    return absl::InternalError("error");
+  EXPECT_TRUE(payload.IsConcrete());
+  EXPECT_EQ(payload->value(), 42);
+}
+
+TEST(AsyncValueRefTest, ImplicitStatusConversion) {
+  auto error = []() -> AsyncValueRef<WrappedInt32> {
+    return absl::InternalError("Error");
   }();
 
   EXPECT_TRUE(error.IsAvailable());
   EXPECT_TRUE(error.IsError());
-  EXPECT_EQ(error.GetError(), absl::InternalError("error"));
+  EXPECT_EQ(error.GetError(), absl::InternalError("Error"));
+}
+
+TEST(AsyncValueRefTest, ImplicitStatusConversionWithStatusPayload) {
+  auto status = []() -> absl::StatusOr<absl::Status> {
+    return absl::InternalError("Error");
+  }();
+
+  auto error = []() -> AsyncValueRef<absl::Status> {
+    return absl::InternalError("Error");
+  }();
+
+  // Check that AsyncValueRef<absl::Status> behavior is consistent with
+  // absl::StatusOr<absl::Status> for implicit error conversion.
+
+  ASSERT_TRUE(status.ok());
+  ASSERT_EQ(*status, absl::InternalError("Error"));
+
+  EXPECT_TRUE(error.IsConcrete());
+  EXPECT_EQ(error.get(), absl::InternalError("Error"));
 }
 
 TEST(AsyncValueRefTest, ValueCheck) {
