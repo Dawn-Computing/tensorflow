@@ -93,9 +93,7 @@ class GpuStream : public StreamCommon {
   GpuStreamHandle cuda_stream() const { return gpu_stream(); }
 
   GpuExecutor* parent() const { return parent_; }
-  absl::Status WaitFor(Stream* stream) override {
-    return StreamCommon::WaitFor(stream);
-  }
+  absl::Status WaitFor(Stream* other) override;
   absl::Status WaitFor(Event* event) override;
 
  private:

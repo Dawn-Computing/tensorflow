@@ -52,6 +52,13 @@ HostStream::~HostStream() {
   parent()->DeallocateStream(this);
 }
 
+absl::Status HostStream::WaitFor(Stream* other) {
+  auto event = std::make_shared<absl::Notification>();
+  static_cast<HostStream*>(other)->EnqueueTask([event]() { event->Notify(); });
+  EnqueueTask([event]() { event->WaitForNotification(); });
+  return absl::OkStatus();
+}
+
 absl::Status HostStream::WaitFor(Event* event) {
   std::shared_ptr<absl::Notification> notification =
       static_cast<HostEvent*>(event)->notification();
