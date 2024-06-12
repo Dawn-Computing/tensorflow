@@ -1290,12 +1290,16 @@ Status ExtractFunctionInputInfo(
 }
 
 Status SetOpDevice(EagerContext& ctx, EagerOperation* op, Device** device) {
+  VLOG(10) << "[Dawn] schedule " << op->Name() << "\n";
   // Here in local execute, set preferred device to be on the local task to
   // avoid placing op on a remote device with higher priority.
   const DeviceNameUtils::ParsedName& preferred_device =
       DeviceNameUtils::HasSomeDetails(op->GetDeviceParsedName())
           ? op->GetDeviceParsedName()
           : DeviceNameUtils::AddressSpace(ctx.HostCPUParsedName());
+  VLOG(10) << "[Dawn] device parsed name: " << op->GetDeviceParsedName()
+           << ", host CPU name: " << ctx.HostCPUParsedName()
+           << ", preferred_device: " << preferred_device << "\n";
   // Note: We use the unwrapped op for inferring the device.
   // Without this, when wrapping CPU-only ops like RangeDataset we would
   // place the wrapped op on a GPU (if one is available) which leads to
