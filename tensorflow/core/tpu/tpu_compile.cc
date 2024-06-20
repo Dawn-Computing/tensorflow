@@ -440,6 +440,7 @@ Status CompileTFFunctionToHlo(
     std::vector<tpu::ShardingAndIndex>* arg_core_mapping,
     std::vector<std::vector<xla::Shape>>* per_core_arg_shapes,
     bool use_tuple_args, XlaCompiler::CompilationResult* compilation_result) {
+  VLOG(10) << "[Dawn TPU] trigger TPU compilation\n";
   XlaCompiler::Options compiler_options;
   FunctionLibraryDefinition flib_definition(flib_def);
   compiler_options.device_type = DeviceType(DEVICE_TPU_XLA_JIT);

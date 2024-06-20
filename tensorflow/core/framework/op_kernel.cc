@@ -1540,6 +1540,7 @@ Status SupportedDeviceTypesForNode(
   if (s.ok()) {
     bool exists_attr_mismatch = false;
     for (const DeviceType& device_type : prioritized_types) {
+      VLOG(10) << "Verify the support of " << device_type << "\n";
       const KernelRegistration* reg = nullptr;
       bool was_attr_mismatch = false;
       TF_RETURN_IF_ERROR(

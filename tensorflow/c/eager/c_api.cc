@@ -116,6 +116,7 @@ TFE_Context* TFE_NewContext(const TFE_ContextOptions* opts, TF_Status* status) {
     return nullptr;
   }
   std::vector<std::unique_ptr<tensorflow::Device>> devices;
+  VLOG(10) << "[Dawn Tmp] add devices from here\n";
   status->status = tensorflow::DeviceFactory::AddDevices(
       opts->session_options.options, "/job:localhost/replica:0/task:0",
       &devices);

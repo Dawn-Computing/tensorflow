@@ -253,11 +253,13 @@ void EagerContext::ResetPFLR(const DeviceMgr* device_mgr, Env* env,
 void EagerContext::InitPrioritizedDeviceTypeList() {
   DeviceSet ds;
   for (Device* d : local_device_mgr()->ListDevices()) {
+    VLOG(10) << "add local device " << d->name();
     ds.AddDevice(d);
   }
   auto remote_device_manager = remote_device_mgr();
   if (remote_device_manager != nullptr) {
     for (Device* d : remote_device_manager->ListDevices()) {
+      VLOG(10) << "add remote device " << d->name();
       ds.AddDevice(d);
     }
   }
@@ -300,9 +302,13 @@ std::vector<string> DeviceTypesToString(
 Device* SelectBestMatchingDevice(const DeviceNameUtils::ParsedName& pattern,
                                  const PrioritizedDeviceVector& existing,
                                  const PrioritizedDeviceTypeVector& supported) {
+  VLOG(10) << "[Dawn] SelectBestMatchingDevice for " << pattern << "\n";
+
   for (const std::pair<DeviceType, int32>& prioritized_type : supported) {
+    VLOG(10) << "[Dawn] support " << prioritized_type.first.type_string() << "\n";
     for (const std::pair<Device*, int32>& prioritized_device : existing) {
       Device* dev = prioritized_device.first;
+      VLOG(10) << "[Dawn] exist " << dev->name() << "\n";
       if (DeviceType(dev->attributes().device_type()) ==
               prioritized_type.first &&
           DeviceNameUtils::IsCompleteSpecification(pattern,
@@ -322,8 +328,16 @@ Status EagerContext::SelectDevice(DeviceNameUtils::ParsedName preferred,
 
   PrioritizedDeviceTypeVector supported_devs;
   auto device_type_list = prioritized_device_type_list();
+  for (auto &dev : *device_type_list) {
+    VLOG(10) << "[Dawn] device_type_list: " << dev;
+  }
+
   TF_RETURN_IF_ERROR(SupportedDeviceTypesForNode(
       *device_type_list, ndef, &supported_devs, &HostCPU()->parsed_name()));
+  
+  for (auto support_dev : supported_devs) {
+    VLOG(10) << "Supported dev: " << support_dev.first.type_string() << "\n";
+  }
   if (supported_devs.empty()) {
     return errors::NotFound("Could not find device for node: ",
                             errors::FormatNodeNameForError(ndef.name()), " = ",

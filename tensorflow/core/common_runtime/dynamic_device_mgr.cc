@@ -74,6 +74,7 @@ void DynamicDeviceMgr::ListDeviceAttributes(
 
 std::vector<Device*> DynamicDeviceMgr::ListDevices() const {
   tf_shared_lock l(devices_mu_);
+  VLOG(10) << "[Dawn Tmp] hahaha DynamicDeviceMgr::ListDevices()\n";
   std::vector<Device*> devices;
   devices.reserve(dynamic_devices_.size());
   for (const auto& it : dynamic_devices_) {
@@ -162,6 +163,7 @@ Status DynamicDeviceMgr::AddDevices(
     std::vector<std::unique_ptr<Device>> devices) {
   mutex_lock l(devices_mu_);
   for (auto& d : devices) {
+    VLOG(10) << "[Dawn Tmp] DynamicDeviceMgr::AddDevices for " << d->name() << "\n";
     if (device_map_.find(d->name()) != device_map_.end()) {
       return errors::InvalidArgument(
           "Trying to add device ", d->name(),
